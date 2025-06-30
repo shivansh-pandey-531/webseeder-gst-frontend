@@ -9,18 +9,6 @@ import ImportHistory from "../components/ImportHistory";
 import UserActivity from "../components/UserActivity";
 
 
-const componentMap = {
-  '/gst-dashboard': () => <HeroSection />,
-  '/my-companies': (props) => <MyCompanies {...props} />,
-  '/company-settings': () => <CompanySettings />,
-  '/imported-file-log': () => <ImportHistory />,
-  '/user-activity': () => <UserActivity />,
-};
-
-// Render the component with props
-const contentKey = location.pathname;
-const ContentComponent = componentMap[contentKey]
-
 
 const GstDashboard = () => {
 
@@ -42,6 +30,19 @@ const GstDashboard = () => {
       document.getElementById('root')?.classList.remove('fullscreen-bg');
     };
   }, [fullscreen]);
+
+
+  const componentMap = {
+    '/gst-dashboard': () => <HeroSection />,
+    '/my-companies': (props) => <MyCompanies {...props} />,
+    '/company-settings': (props) => <CompanySettings {...props} />,
+    '/imported-file-log': () => <ImportHistory />,
+    '/user-activity': () => <UserActivity />,
+  };
+
+  // Render the component with props
+  const contentKey = location.pathname;
+  const ContentComponent = componentMap[contentKey]
 
 
   // Find the component for the current path, fallback to HeroSection

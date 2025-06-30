@@ -7,16 +7,10 @@ import { Tooltip } from '@mui/material';
 import { TfiLayoutColumn3Alt } from "react-icons/tfi";
 
 
-const ColumnVisibilityMenu = () => {
+const ColumnVisibilityMenu = ({columnVisibilityOptions}) => {
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [columnVisibility, setColumnVisibility] = useState({
-    'Company Name': true,
-    'GSTR-1/IFF Status': true,
-    'GSTR-3B Status (Beta)': true,
-    'GSTR-9': true,
-    'GSTR-9C': true,
-  });
+  const [columnVisibility, setColumnVisibility] = useState(columnVisibilityOptions);
 
   // Helper to check if all columns are visible
   const allVisible = Object.values(columnVisibility).every(Boolean);

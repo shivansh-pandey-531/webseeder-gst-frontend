@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { BsBoxArrowInDownRight } from "react-icons/bs";
 import { IoFilterSharp } from "react-icons/io5";
 import { MdFilterListOff } from "react-icons/md";
@@ -14,13 +14,19 @@ import dummyData from '../static/dummyData_MyCompanies';
 
 const tabs = ["All", "Monthly", "Quarlerly", "GSTR-1/FF", "GSTR-3B", "CMP-08", "GSTR-9", "GSTR-9C"];
 
+const columnVisibilityOptions = {
+  'Company Name': true,
+  'GSTR-1/IFF Status': true,
+  'GSTR-3B Status (Beta)': true,
+  'GSTR-9': true,
+  'GSTR-9C': true,
+}
+
 
 const MyCompanies = ({ fullscreen, setFullscreen }) => {
 
   const [selectedTab, setSelectedTab] = useState(0);
   const [columnSearchEnabled, setColumnSearchEnabled] = useState(false);
-  
-  const mainBoxRef = useRef(null);    //For fullscreen handling
   const [underlineActive, setUnderlineActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -36,16 +42,6 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
   const handleFullscreen = () => {
     setFullscreen(prev => !prev);
   };
-
-  useEffect(() => {
-    if (fullscreen) {
-      document.body.classList.add('fullscreen-bg');
-    } else {
-      document.body.classList.remove('fullscreen-bg');
-    }
-    // Clean up on unmount
-    return () => document.body.classList.remove('fullscreen-bg');
-  }, [fullscreen]);
 
 
   // Track which rows' "View" button have been clicked
@@ -82,7 +78,7 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
 
 
   return (
-    <div className={`flex flex-col py-6 px-7 mt-16 gap-6 ${fullscreen ? 'bg-transparent' : 'bg-[#F8F8F8]'}`}>
+    <div className={`flex flex-col py-6 px-7 mt-16 gap-6 bg-[#F8F8F8]`}>
       {/* Headings */}
       <div className='flex justify-between w-full items-center'>
         <h2 className='font-medium text-2xl'>My Company</h2>
@@ -147,7 +143,6 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
 
       {/* Main Box */}
       <div
-        ref={mainBoxRef}
         style={fullscreen ? { maxHeight: "calc(100vh - 30px)" } : { minHeight: "100vh" }}
         className={`relative border border-solid border-[#C5C5C5] rounded-lg w-full ${fullscreen ? 'custom-fullscreen' : ''}`}
       >
@@ -208,7 +203,7 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
                 </Tooltip>
               </div>
 
-              <ColumnVisibilityMenu/>
+              <ColumnVisibilityMenu columnVisibilityOptions={columnVisibilityOptions}/>
               
               <div onClick={handleFullscreen} className='flex items-center justify-center w-8 h-8 rounded-sm hover:text-[#1773EA] hover:bg-[#DCEAFC] cursor-pointer'>
                 <Tooltip
@@ -254,7 +249,7 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
                   border-bottom: 2px solid #C5C5C5;
                 }
                 table thead tr {
-                  border-bottom: none;
+                  // border-bottom: none;
                 }
                 table {
                   border-collapse: separate;
@@ -271,12 +266,17 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
                   position: sticky;
                   top: 0;
                   background: #C8E1FF;
-                  z-index: 20;
                   padding-top: 15px; 
                   padding-bottom: 15px; 
                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.08);
                   border-bottom: 2px solid #C5C5C5;
                 }
+
+                table tr:last-child td,
+                table tr:last-child th {
+                  border-bottom: none;
+                }
+
                 .underline-anim {
                   position: absolute;
                   left: 50%;
@@ -294,7 +294,7 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
                 }
               `}
             </style>
-            <thead className={`bg-[#C8E1FF]`} style={{ padding: '5px 5px' }}>
+            <thead>
               <tr>
                 <th>
                   <input type="checkbox" className='bg-white border border-[#D9D7DF] cursor-pointer' checked={allSelected} onChange={handleMainCheckbox} />
@@ -305,7 +305,7 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
                     <div className='flex items-center'>
                       <p>Company Name</p>
                       <div className='absolute -right-3 z-50'>
-                        <ColumnActionsMenu/>
+                        <ColumnActionsMenu />
                       </div>
                     </div>
                     {
@@ -333,28 +333,29 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
               </tr>
             </thead>
 
+            
             {/* Actual data */}
             <tbody>
               {
                 dummyData.map((item) => {
-                  const isSelected = selectedRows.includes(item.srNo);
-                  const isViewed = viewedRows.includes(item.srNo);
-                  return (
-                    <tr key={item.srNo} className='bg-[#F8F8F8]'>
-                      <td><input type="checkbox" className='cursor-pointer' checked={isSelected} onChange={() => handleRowCheckbox(item.srNo)} /></td>
-                      <td className={isSelected ? 'line-through' : ''}>{item.srNo}</td>
-                      <td className={isSelected ? 'line-through' : ''}>{item.companyName}</td>
-                      <td className={isSelected ? 'line-through' : ''}>{item.gstr1Status}</td>
-                      <td className={isSelected ? 'line-through' : ''}>{item.gstr3bStatus}</td>
-                      <td className={isSelected ? 'line-through' : ''}>{item.gstr9}</td>
-                      <td className={isSelected ? 'line-through' : ''}>{item.gstr9c}</td>
-                      <td style={{borderRight: '0px'}}>
-                        <Button id={item.srNo} onClick={() => handleRowButtonClick(item.srNo)} variant="outlined" color={isViewed || isSelected ? "secondary" : "primary"}>
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  )
+                    const isSelected = selectedRows.includes(item.srNo);
+                    const isViewed = viewedRows.includes(item.srNo);
+                    return (
+                      <tr key={item.srNo} className='bg-[#F8F8F8]'>
+                        <td><input type="checkbox" className='cursor-pointer' checked={isSelected} onChange={() => handleRowCheckbox(item.srNo)} /></td>
+                        <td className={isSelected ? 'line-through' : ''}>{item.srNo}</td>
+                        <td className={isSelected ? 'line-through' : ''}>{item.companyName}</td>
+                        <td className={isSelected ? 'line-through' : ''}>{item.gstr1Status}</td>
+                        <td className={isSelected ? 'line-through' : ''}>{item.gstr3bStatus}</td>
+                        <td className={isSelected ? 'line-through' : ''}>{item.gstr9}</td>
+                        <td className={isSelected ? 'line-through' : ''}>{item.gstr9c}</td>
+                        <td style={{borderRight: '0px'}}>
+                          <Button id={item.srNo} onClick={() => handleRowButtonClick(item.srNo)} variant="outlined" color={isViewed || isSelected ? "secondary" : "primary"}>
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    )
                 })
               }
             </tbody>
