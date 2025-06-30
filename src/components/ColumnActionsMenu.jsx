@@ -4,6 +4,8 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert'; // For the '...' icon
 import FilterListIcon from '@mui/icons-material/FilterList'; // For filter icon
+import { Tooltip } from '@mui/material';
+
 
 const ColumnActionsMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -17,12 +19,25 @@ const ColumnActionsMenu = () => {
     setAnchorEl(null);
   };
 
+
+
   return (
     <div>
       {/* The button that opens the menu */}
-      <IconButton onClick={handleClick} size="small">
-        <MoreVertIcon fontSize="small" />
-      </IconButton>
+      <Tooltip title="Column Actions"
+        arrow={true} 
+        placement='top' 
+        enterDelay={200} 
+        slotProps={{
+          tooltip:{sx:{ bgcolor:"#323232", padding:'10px', fontSize:"13px" }}, 
+          arrow:{sx:{ color:"#323232" }},
+          popper: {sx:{ zIndex: 9999 }}
+        }}
+      >
+        <IconButton onClick={handleClick} size="small">
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
 
       {/* The menu component */}
       <Menu

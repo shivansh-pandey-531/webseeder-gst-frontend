@@ -48,9 +48,8 @@ const ColumnVisibilityMenu = () => {
   const open = Boolean(anchorEl);
 
 return (
-    <div
-        className='flex items-center justify-center w-8 h-8 rounded-sm hover:text-[#1773EA] hover:bg-[#DCEAFC] cursor-pointer group'
-    >
+    <div className='flex items-center justify-center w-8 h-8 rounded-sm hover:text-[#1773EA] hover:bg-[#DCEAFC] cursor-pointer group'>
+        
         {/* Button to open the menu */}
         <Tooltip
             title="Show/Hide columns"
@@ -60,6 +59,9 @@ return (
                 tooltip: { sx: { bgcolor: "#323232", padding: '10px', fontSize: "13px" } },
                 arrow: { sx: { color: "#323232" } }
             }}
+            PopperProps={{
+                sx: { zIndex: 9999 }
+          }}
         >
             <IconButton
                 onClick={handleClick}

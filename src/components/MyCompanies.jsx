@@ -15,14 +15,14 @@ import dummyData from '../static/dummyData_MyCompanies';
 const tabs = ["All", "Monthly", "Quarlerly", "GSTR-1/FF", "GSTR-3B", "CMP-08", "GSTR-9", "GSTR-9C"];
 
 
-const MyCompanies = () => {
+const MyCompanies = ({ fullscreen, setFullscreen }) => {
 
   const [selectedTab, setSelectedTab] = useState(0);
   const [columnSearchEnabled, setColumnSearchEnabled] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
+  
+  const mainBoxRef = useRef(null);    //For fullscreen handling
   const [underlineActive, setUnderlineActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const mainBoxRef = useRef(null);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -31,24 +31,21 @@ const MyCompanies = () => {
     setSelectedTab(idx);
   }
 
+
   //Fullscreen handling
   const handleFullscreen = () => {
-    if (mainBoxRef.current) {
-      if (!document.fullscreenElement) {
-        mainBoxRef.current.requestFullscreen();
-      } else {
-        document.exitFullscreen();
-      }
-    }
+    setFullscreen(prev => !prev);
   };
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+    if (fullscreen) {
+      document.body.classList.add('fullscreen-bg');
+    } else {
+      document.body.classList.remove('fullscreen-bg');
+    }
+    // Clean up on unmount
+    return () => document.body.classList.remove('fullscreen-bg');
+  }, [fullscreen]);
 
 
   // Track which rows' "View" button have been clicked
@@ -85,7 +82,7 @@ const MyCompanies = () => {
 
 
   return (
-    <div className='flex flex-col min-h-screen py-6 px-7 mt-16 bg-[#F8F8F8] gap-6'>
+    <div className={`flex flex-col py-6 px-7 mt-16 gap-6 ${fullscreen ? 'bg-transparent' : 'bg-[#F8F8F8]'}`}>
       {/* Headings */}
       <div className='flex justify-between w-full items-center'>
         <h2 className='font-medium text-2xl'>My Company</h2>
@@ -100,46 +97,132 @@ const MyCompanies = () => {
         </div>
       </div>
 
+      {/* Custom fullscreen style for the main box */}
+      <style>
+        {`
+          .main-box {
+            position: relative;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-width: 100%;
+            max-height: 100%;
+            margin-left: 0;
+            margin-right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 0 24px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s cubic-bezier(.4,0,.2,1);
+          }
+          .custom-fullscreen {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            right: 24px;
+            bottom: 24px;
+            z-index: 50;
+            max-width: 95vw;
+            max-height: 70vh;
+            margin-left: auto;
+            margin-right: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 0 24px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s cubic-bezier(.4,0,.2,1);
+          }
+          .table-scroll-area {
+            flex: 1 1 0%;
+            overflow-y: auto;
+            width: 100%;
+          }
+        `}
+      </style>
+
+      
 
       {/* Main Box */}
-      <div ref={mainBoxRef} className='border-[#C5C5C5] border-solid border rounded-lg min-h-screen w-full'>
-        
+      <div
+        ref={mainBoxRef}
+        style={fullscreen ? { maxHeight: "calc(100vh - 30px)" } : { minHeight: "100vh" }}
+        className={`relative border border-solid border-[#C5C5C5] rounded-lg w-full ${fullscreen ? 'custom-fullscreen' : ''}`}
+      >
         {/* Tabs Panel */}
-
-        {/* Left half */}
-        <div className='bg-white w-full px-1 rounded-lg flex justify-between gap-7' style={{borderBottom: '1px solid #C5C5C5', borderBottomLeftRadius: 0, borderBottomRightRadius: 0}}>
-          <div className='flex gap-3 pt-2.5'>
-            {
-              tabs.map((tab, idx) => (
-                <div key={idx} onClick={() => menuClickHandler(idx)} className={`${selectedTab == idx?  'text-blue-500': ''}
-                ${idx == 0? 'w-14' : 'w-20'}
-                flex flex-col text-sm font-medium justify-end cursor-pointer`}>
-                  <div className='mb-2 text-center'>{tab}</div>
-                  <div className={`${selectedTab == idx? ' bg-gradient-to-r from-blue-400 to-blue-300' : ''} mx-1 h-[3px]`}></div>
+        <div className='bg-white w-full px-1 rounded-lg flex justify-between gap-7' style={{borderBottom: '1px solid #C5C5C5', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, zIndex: 10, position: fullscreen ? 'sticky' : 'static', top: 0}}>
+        
+          {/* Left half */}
+          {
+            fullscreen?
+             (
+              <div className=' ml-2 flex items-center'>
+                <h2 className='text-xl font-medium py-4'>My Company</h2>
+              </div>
+             )
+              : 
+              (
+                <div className='flex gap-3 pt-2.5'>
+                  {
+                    tabs.map((tab, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => menuClickHandler(idx)}
+                        className={`${selectedTab === idx ? 'text-blue-500' : ''}
+                          ${idx === 0 ? 'w-14' : 'w-20'}
+                          flex flex-col text-sm font-medium justify-end cursor-pointer`}
+                      >
+                        <div className='mb-2 text-center'>{tab}</div>
+                        <div className={`${selectedTab === idx ? ' bg-gradient-to-r from-blue-400 to-blue-300' : ''} mx-1 h-[3px]`}></div>
+                      </div>
+                    ))
+                  }
                 </div>
-              ))
-            }
-          </div>
-            
-
+              )
+          }
+          
           {/* Right half --> Filter, column, fullscreen icons */}
-          <div className='flex items-center py-1.5 gap-3 pr-3'>
-            <input type="text" className='px-2 rounded-md h-full focus:outline-none focus:border-blue-500 focus:drop-shadow-md border border-solid border-gray-300 placeholder-gray-300 text-xs w-48 font-medium' placeholder='PAN/GSTIN/NAME/GROUP' />
+          <div className='flex items-center py-1.5 gap-3 pr-3'>            
+            <input type="text" className='px-2 py-3 rounded-md h-full focus:outline-none focus:border-blue-500 focus:drop-shadow-md border border-solid border-gray-300 placeholder-gray-300 text-xs w-48 font-medium' placeholder='PAN/GSTIN/NAME/GROUP' />
             
             <div className='flex gap-1 items-center'>
               <div onClick={() => setColumnSearchEnabled(prev => !prev)} className='flex items-center justify-center w-8 h-8 rounded-sm hover:text-[#1773EA] hover:bg-[#DCEAFC] cursor-pointer'>      
-                <Tooltip title={`${columnSearchEnabled ? "Hide column search" : "Show column search"}`} arrow={true} enterDelay={200} slotProps={{tooltip:{sx:{ bgcolor:"#323232", padding:'10px', fontSize:"13px" }}, arrow:{sx:{ color:"#323232"}}}}>
+                <Tooltip 
+                  title={`${columnSearchEnabled ? "Hide column search" : "Show column search"}`} 
+                  arrow={true} 
+                  enterDelay={200} 
+                  slotProps={{
+                    tooltip:{sx:{ bgcolor:"#323232", padding:'10px', fontSize:"13px" }}, 
+                    arrow:{sx:{ color:"#323232"}}
+                  }}
+                  PopperProps={{
+                    sx: { zIndex: 50 }
+                  }}
+                >
                   <span className='flex justify-center items-center w-full h-full'>
                     <MdFilterListOff size={18} style={{ display: columnSearchEnabled ? 'inline' : 'none' }}/>
                     <IoFilterSharp size={18} style={{ display: columnSearchEnabled ? 'none' : 'inline' }}/>
                   </span>     
                 </Tooltip>
               </div>
-              
+
               <ColumnVisibilityMenu/>
               
               <div onClick={handleFullscreen} className='flex items-center justify-center w-8 h-8 rounded-sm hover:text-[#1773EA] hover:bg-[#DCEAFC] cursor-pointer'>
-                <Tooltip title={`${fullscreen?  "Toggle exit full screen" : "Toggle full screen"}`} arrow={true} enterDelay={200} slotProps={{tooltip:{sx:{ bgcolor:"#323232", padding:'10px', fontSize:"13px" }}, arrow:{sx:{ color:"#323232"}}}}>
+                <Tooltip
+                  title={`${fullscreen ? "Toggle exit full screen" : "Toggle full screen"}`}
+                  arrow={true}
+                  enterDelay={200}
+                  slotProps={{
+                    tooltip: { sx: { bgcolor: "#323232", padding: '10px', fontSize: "13px" } },
+                    arrow: { sx: { color: "#323232" } }
+                  }}
+                  PopperProps={{
+                    sx: { zIndex: 50 }
+                  }}
+                >
                   <span className='flex justify-center items-center w-full h-full'>
                     <RiFullscreenExitLine size={18} style={{ display: fullscreen ? 'inline' : 'none' }}/>
                     <RiFullscreenLine size={18} style={{ display: fullscreen ? 'none' : 'inline' }}/>
@@ -150,11 +233,22 @@ const MyCompanies = () => {
           </div>
         </div>
 
-
-        {/* Table Heading */}
-        <div>
-          <table>
-            <style>    {/* Styling for the table head & table entries. */}
+        {/* Table Heading + Table */}
+        <div
+          className="table-scroll-area"
+          style={
+            fullscreen
+              ? {
+                  height: 'calc(100vh - 320px)', // Adjust 320px as needed for your header/tabs/filters
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '0 0 12px 12px',
+                }
+              : {}
+          }
+        >
+          <table className='relative'>
+            <style>
               {`
                 table tr {
                   border-bottom: 2px solid #C5C5C5;
@@ -173,7 +267,16 @@ const MyCompanies = () => {
                   border-right: 1px solid #C5C5C5;
                   border-bottom: 1px solid #C5C5C5;
                 }
-                    
+                table th {
+                  position: sticky;
+                  top: 0;
+                  background: #C8E1FF;
+                  z-index: 20;
+                  padding-top: 15px; 
+                  padding-bottom: 15px; 
+                  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.08);
+                  border-bottom: 2px solid #C5C5C5;
+                }
                 .underline-anim {
                   position: absolute;
                   left: 50%;
@@ -191,23 +294,20 @@ const MyCompanies = () => {
                 }
               `}
             </style>
-
-            <thead className='bg-[#C8E1FF]'>
+            <thead className={`bg-[#C8E1FF]`} style={{ padding: '5px 5px' }}>
               <tr>
-                <th><input type="checkbox" className='bg-white border border-solid border-[#D9D7DF]  cursor-pointer' checked={allSelected} onChange={handleMainCheckbox} /></th>
+                <th>
+                  <input type="checkbox" className='bg-white border border-[#D9D7DF] cursor-pointer' checked={allSelected} onChange={handleMainCheckbox} />
+                </th>
                 <th>Sr.No.</th>
                 <th style={{ minWidth: '250px', width: '330px' }}>
                   <div className='relative flex flex-col gap-1 justify-center items-center'>
                     <div className='flex items-center'>
                       <p>Company Name</p>
-                        
-                      <div className='absolute -right-3'>
-                        <Tooltip title="Column Actions" arrow={true} placement='top' enterDelay={200} slotProps={{tooltip:{sx:{ bgcolor:"#323232", padding:'10px', fontSize:"13px" }}, arrow:{sx:{ color:"#323232"}}}}>
-                          <ColumnActionsMenu/>
-                        </Tooltip>
+                      <div className='absolute -right-3 z-50'>
+                        <ColumnActionsMenu/>
                       </div>
                     </div>
-
                     {
                       columnSearchEnabled  &&
                         <div className='relative w-full flex flex-col justify-center items-center'>
@@ -215,10 +315,7 @@ const MyCompanies = () => {
                           onFocus={() => setUnderlineActive(true)}
                           onBlur={() => setUnderlineActive(false)}
                           className='w-full focus:outline-none p-1 text-xs font-light border-none' placeholder='Filter by Company Name / GST Number / State' />
-                          
-                          <div className={`underline-anim absolute ${underlineActive ? 'active' : ''}`}
-                          ></div>
-                        
+                          <div className={`underline-anim absolute ${underlineActive ? 'active' : ''}`}></div>
                           <div className='cursor-text'>
                             <Tooltip title="Clear filter" arrow={true} placement='right' enterDelay={200} slotProps={{tooltip:{sx:{ bgcolor:"#323232", padding:'10px', fontSize:"13px" }}, arrow:{sx:{ color:"#323232"}}}}>
                               <RxCross1 className='absolute right-1 top-2' size={10} color='#4B5563' />
@@ -235,15 +332,15 @@ const MyCompanies = () => {
                 <th style={{borderRight: '0px', width: '150px' }}>Actions</th>
               </tr>
             </thead>
-                  
+
             {/* Actual data */}
             <tbody>
               {
-                dummyData.map(item => {
+                dummyData.map((item) => {
                   const isSelected = selectedRows.includes(item.srNo);
                   const isViewed = viewedRows.includes(item.srNo);
                   return (
-                    <tr key={item.srNo}>
+                    <tr key={item.srNo} className='bg-[#F8F8F8]'>
                       <td><input type="checkbox" className='cursor-pointer' checked={isSelected} onChange={() => handleRowCheckbox(item.srNo)} /></td>
                       <td className={isSelected ? 'line-through' : ''}>{item.srNo}</td>
                       <td className={isSelected ? 'line-through' : ''}>{item.companyName}</td>
