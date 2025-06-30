@@ -1,0 +1,22 @@
+.notifs-and-circulars ul {
+  list-style-type: none; /* Removes the default black dot */
+  padding-left: 1.5em;  /*Add padding for the custom dot */
+}
+
+
+.notifs-and-circulars li {
+  position: relative;
+}
+
+
+.notifs-and-circulars li::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #1773EA;
+  border: 4px solid #DCEAFC;
+  border-radius: 50%;
+  left: -26px;
+  top: 0.4em;
+}
