@@ -303,28 +303,33 @@ const CompanySettings = ({ fullscreen, setFullscreen }) => {
             {/* Actual data */}
             <tbody>
               {
-                dummyData.map((item) => {
-                  return (
-                    <tr key={item.srNo} className='bg-[#F8F8F8]'>
-                      <td>{item.srNo}</td>
-                      <td>{item.companyName}</td>
-                      <td style={{borderRight: '0px'}} className='flex gap-12 justify-center items-center'>
-                        {
-                          item.actions.map(action => (
-                            <Button
-                              key={`${item.srNo}-${action.label}`} 
-                              onClick={() => action.handler(item.srNo)}
-                              variant="contained"
-                              color={action.color}
-                            >
-                              {action.label}
-                            </Button>
-                          ))
-                        }
-                      </td>
-                    </tr>
-                  )
-                })
+                dummyData.length === 0? 
+                  <tr>
+                    <td colSpan={10} className='py-96'>There are no records to display</td>
+                  </tr>
+                  :
+                  dummyData.map((item) => {
+                    return (
+                      <tr key={item.srNo} className='bg-[#F8F8F8]'>
+                        <td>{item.srNo}</td>
+                        <td>{item.companyName}</td>
+                        <td style={{borderRight: '0px'}} className='flex gap-12 justify-center items-center'>
+                          {
+                            item.actions.map(action => (
+                              <Button
+                                key={`${item.srNo}-${action.label}`} 
+                                onClick={() => action.handler(item.srNo)}
+                                variant="contained"
+                                color={action.color}
+                              >
+                                {action.label}
+                              </Button>
+                            ))
+                          }
+                        </td>
+                      </tr>
+                    )
+                  })
               }
             </tbody>
           </table>

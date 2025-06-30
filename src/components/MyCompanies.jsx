@@ -337,26 +337,31 @@ const MyCompanies = ({ fullscreen, setFullscreen }) => {
             {/* Actual data */}
             <tbody>
               {
-                dummyData.map((item) => {
-                    const isSelected = selectedRows.includes(item.srNo);
-                    const isViewed = viewedRows.includes(item.srNo);
-                    return (
-                      <tr key={item.srNo} className='bg-[#F8F8F8]'>
-                        <td><input type="checkbox" className='cursor-pointer' checked={isSelected} onChange={() => handleRowCheckbox(item.srNo)} /></td>
-                        <td className={isSelected ? 'line-through' : ''}>{item.srNo}</td>
-                        <td className={isSelected ? 'line-through' : ''}>{item.companyName}</td>
-                        <td className={isSelected ? 'line-through' : ''}>{item.gstr1Status}</td>
-                        <td className={isSelected ? 'line-through' : ''}>{item.gstr3bStatus}</td>
-                        <td className={isSelected ? 'line-through' : ''}>{item.gstr9}</td>
-                        <td className={isSelected ? 'line-through' : ''}>{item.gstr9c}</td>
-                        <td style={{borderRight: '0px'}}>
-                          <Button id={item.srNo} onClick={() => handleRowButtonClick(item.srNo)} variant="outlined" color={isViewed || isSelected ? "secondary" : "primary"}>
-                            View
-                          </Button>
-                        </td>
-                      </tr>
-                    )
-                })
+                dummyData.length === 0? 
+                  <tr>
+                    <td colSpan={10} className='py-96'>There are no records to display</td>
+                  </tr>
+                  :
+                  dummyData.map((item) => {
+                      const isSelected = selectedRows.includes(item.srNo);
+                      const isViewed = viewedRows.includes(item.srNo);
+                      return (
+                        <tr key={item.srNo} className='bg-[#F8F8F8]'>
+                          <td><input type="checkbox" className='cursor-pointer' checked={isSelected} onChange={() => handleRowCheckbox(item.srNo)} /></td>
+                          <td className={isSelected ? 'line-through' : ''}>{item.srNo}</td>
+                          <td className={isSelected ? 'line-through' : ''}>{item.companyName}</td>
+                          <td className={isSelected ? 'line-through' : ''}>{item.gstr1Status}</td>
+                          <td className={isSelected ? 'line-through' : ''}>{item.gstr3bStatus}</td>
+                          <td className={isSelected ? 'line-through' : ''}>{item.gstr9}</td>
+                          <td className={isSelected ? 'line-through' : ''}>{item.gstr9c}</td>
+                          <td style={{borderRight: '0px'}}>
+                            <Button id={item.srNo} onClick={() => handleRowButtonClick(item.srNo)} variant="outlined" color={isViewed || isSelected ? "secondary" : "primary"}>
+                              View
+                            </Button>
+                          </td>
+                        </tr>
+                      )
+                  })
               }
             </tbody>
           </table>

@@ -1,5 +1,5 @@
 import dummyData from '../static/dummyData_ImportHistory';
-
+import CustomSelectMenu from './CustomSelectMenu';
 
 
 const ImportHistory = () => {
@@ -17,7 +17,8 @@ const ImportHistory = () => {
 
         {/* Select Boxes Panel */}
         <div className='bg-white w-full px-1 rounded-lg flex justify-between gap-7' style={{borderBottom: '1px solid #C5C5C5', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, zIndex: 10}}>
-          Insert select boxes here
+          <CustomSelectMenu placeholder={"Select company"} />
+          <CustomSelectMenu placeholder={"Select Return period"} />
         </div>
 
         {/* Table Heading + Table */}
@@ -43,7 +44,7 @@ const ImportHistory = () => {
                   border-bottom: 1px solid #C5C5C5;
                 }
                 table td {
-                  padding: 10px;
+                  padding: 8px;
                   font-size: 14px;
                 }
                 table th {
@@ -67,42 +68,47 @@ const ImportHistory = () => {
             </style>
             <thead className={`bg-[#C8E1FF]`}>
               <tr>
-                <th>Sr.No.</th>
+                <th style={{ minWidth: '55px' }}>Sr.No.</th>
                 <th>File Name</th>
                 <th>Return type</th>
                 <th className='min-w-24'>Period</th>
-                <th>Status</th>
+                <th style={{ maxWidth: '95px', width: '95px' }}>Status</th>
                 <th>Success count</th>
                 <th>Fail count</th>
                 <th>Download file</th>
                 <th>Check Sheet</th>
-                <th style={{borderRight: '0px'}}>Date & Time</th>
+                <th style={{borderRight: '0px', minWidth: '110px'}}>Date & Time</th>
               </tr>
             </thead>
 
             {/* Actual data */}
             <tbody>
               {
-                dummyData.map((item) => {
-                  return (
-                    <tr key={item.srNo} className='bg-[#F8F8F8]'>
-                      <td>{item.srNo}</td>
-                      <td>{item.fileName}</td>
-                      <td>{item.returnType}</td>
-                      <td>{item.period}</td>
-                      <td>{item.status}</td>
-                      <td>{item.successCount}</td>
-                      <td>{item.failCount}</td>
-                      <td>{item.downloadFile}</td>
-                      <td>{item.checkSheet}</td>
-                      <td style={{borderRight: '0px'}}>
-                        {item.dateTime.split(' ')[0]}
-                        <div className='h-2'></div>
-                        {item.dateTime.split(' ')[1]} {item.dateTime.split(' ')[2]}
-                      </td>
-                    </tr>
-                  )
-                })
+                dummyData.length === 0? 
+                  <tr>
+                    <td colSpan={10} className='py-96'>There are no records to display</td>
+                  </tr>
+                  :
+                  dummyData.map((item) => {
+                    return (
+                      <tr key={item.srNo} className='bg-[#F8F8F8]'>
+                        <td>{item.srNo}</td>
+                        <td>{item.fileName}</td>
+                        <td>{item.returnType}</td>
+                        <td>{item.period}</td>
+                        <td>{item.status}</td>
+                        <td>{item.successCount}</td>
+                        <td>{item.failCount}</td>
+                        <td>{item.downloadFile}</td>
+                        <td>{item.checkSheet}</td>
+                        <td style={{borderRight: '0px'}}>
+                          {item.dateTime.split(' ')[0]}
+                          <div className='h-2'></div>
+                          {item.dateTime.split(' ')[1]} {item.dateTime.split(' ')[2]}
+                        </td>
+                      </tr>
+                    )
+                  })
               }
             </tbody>
           </table>
