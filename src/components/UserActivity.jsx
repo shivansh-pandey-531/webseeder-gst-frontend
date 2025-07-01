@@ -1,6 +1,26 @@
+import CustomSelectMenu from "./CustomSelectMenu";
+import CustomSelectMenu2 from "./CustomSelectMenu2";
 import dummyData from '../static/dummyData_UserActivity';
 
 
+const options_Company = [
+  { label: 'Company', id: 1 },
+  { label: 'User', id: 2 },
+  // Add more dummy data as needed
+];
+
+const options_SelectCompany = [];
+
+const options_Operation = [
+  { label: 'All', id: 1 },
+  { label: 'Create', id: 2 },
+  { label: 'Update', id: 3 },
+  { label: 'Delete', id: 4 },
+  { label: 'Active', id: 5 },
+  { label: 'Deactive', id: 6 },
+  { label: 'Import', id: 7 },
+  // Add more dummy data as needed
+];
 
 
 const UserActivity = () => {
@@ -18,7 +38,15 @@ const UserActivity = () => {
 
         {/* Select Boxes Panel */}
         <div className='bg-white w-full px-1 rounded-lg flex justify-between gap-7' style={{borderBottom: '1px solid #C5C5C5', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, zIndex: 10}}>
-          Insert select boxes here
+          {/* Left Part */}
+          <div className="flex">
+            <CustomSelectMenu placeholder={"Company"} options={options_Company} menuWidth={220} />
+            <CustomSelectMenu placeholder={"Select Company"} options={options_SelectCompany} menuWidth={220} />
+            <CustomSelectMenu2 placeholder={'Operation:'} options={options_Operation} menuWidth={120} placeholderColor="black" />
+          </div>
+
+          {/* Right Part */}
+          <div></div>
         </div>
 
         {/* Table Heading + Table */}
@@ -68,10 +96,10 @@ const UserActivity = () => {
             </style>
             <thead className={`bg-[#C8E1FF]`}>
               <tr>
-                <th>Activity</th>
+                <th style={{minWidth: 300}}>Activity</th>
                 <th>Operation</th>
                 <th>Company Name</th>
-                <th>User</th>
+                <th style={{width: '230px'}}>User</th>
                 <th>Period</th>
                 <th style={{borderRight: '0px'}}>Date & Time</th>
               </tr>

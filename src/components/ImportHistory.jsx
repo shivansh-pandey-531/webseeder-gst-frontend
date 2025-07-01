@@ -2,6 +2,16 @@ import dummyData from '../static/dummyData_ImportHistory';
 import CustomSelectMenu from './CustomSelectMenu';
 
 
+const options = [
+  { label: 'Apex Enterprises', id: 1 },
+  { label: 'NextGen Pvt Ltd.', id: 2 },
+  { label: 'Synergy Corp', id: 3 },
+  { label: 'Green Leaf Ventures', id: 4 },
+  { label: 'Global Corp', id: 5 },
+  // Add more dummy data as needed
+];
+
+
 const ImportHistory = () => {
 
   return (
@@ -16,9 +26,9 @@ const ImportHistory = () => {
       <div className={`relative border border-solid border-[#C5C5C5] rounded-lg w-full min-h-screen`}>
 
         {/* Select Boxes Panel */}
-        <div className='bg-white w-full px-1 rounded-lg flex justify-between gap-7' style={{borderBottom: '1px solid #C5C5C5', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, zIndex: 10}}>
-          <CustomSelectMenu placeholder={"Select company"} />
-          <CustomSelectMenu placeholder={"Select Return period"} />
+        <div className='bg-white w-full px-1 rounded-lg flex justify-start' style={{borderBottom: '1px solid #C5C5C5', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, zIndex: 10}}>
+          <CustomSelectMenu placeholder={"Select company"} menuWidth={200} options={options} />
+          <CustomSelectMenu placeholder={"Select Return period"} isDisabled={true} menuWidth={200} />
         </div>
 
         {/* Table Heading + Table */}

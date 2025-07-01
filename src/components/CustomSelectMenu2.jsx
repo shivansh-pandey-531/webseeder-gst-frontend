@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Import useEffect
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
@@ -18,33 +18,69 @@ function CustomSelectMenu({
   isDisabled = false,
   menuWidth,
   options,
-  placeholderColor = DEFAULT_PLACEHOLDER_COLOR, // This now applies only when ENABLED (or if explicitly overridden)
+  placeholderColor = DEFAULT_PLACEHOLDER_COLOR,
   dropdownIconColor = DEFAULT_DROPDOWN_ICON_COLOR,
 }) {
-  const [value, setValue] = useState(null);
+  // Initialize 'value' state for default selection
+  const [value, setValue] = useState(() => {
+    if (placeholder === 'Operation' && options && Array.isArray(options) && options.length > 0) {
+      // Find the option with id: 1 (assumed to be "All")
+      const allOption = options.find(option => option.id === 1);
+      return allOption || null; // Return it if found, otherwise null
+    }
+    return null; // Default: no option selected for other menus
+  });
+
+  // Controlled inputValue state to manage what's displayed in the TextField
   const [inputValue, setInputValue] = useState('');
 
+  // Use useEffect to update inputValue whenever 'value' (selected option) or 'placeholder' changes
+  useEffect(() => {
+    if (value) {
+      // If an option is selected, format inputValue based on 'placeholder'
+      if (placeholder === 'Operation') {
+        setInputValue(`Operation: ${value.label}`);
+      } else {
+        setInputValue(value.label); // For other menus, just display the option's label
+      }
+    } else {
+      // If no option is selected, clear inputValue so placeholder can show
+      setInputValue('');
+    }
+  }, [value, placeholder]); // Dependency array: re-run when value or placeholder changes
 
   return (
     <Box sx={{ width: menuWidth, margin: '10px' }}>
       <Autocomplete
+        disableClearable // Prevents the 'X' icon from clearing the selection, reinforcing "select-only"
         disabled={isDisabled}
         value={value}
         onChange={(event, newValue) => {
-          setValue(newValue);
+          setValue(newValue); // Update the selected value
+          // The inputValue will be updated by the useEffect linked to 'value'
         }}
+        // Provide inputValue to Autocomplete. It will use this as the source of truth for the input text.
         inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-        }}
+        // IMPORTANT: We remove onInputChange from Autocomplete.
+        // This means Autocomplete will not try to update its internal inputValue based on user typing
+        // or other internal events, as we are explicitly controlling it via our useEffect.
+        // This is crucial for a pure select menu experience.
+        
         options={options}
         getOptionLabel={(option) => option.label}
         sx={{ width: menuWidth }}
         noOptionsText="No options"
+        // Crucial for comparing objects in the options array
+        isOptionEqualToValue={(option, val) => option.id === val.id}
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder={placeholder}
+            inputProps={{
+                ...params.inputProps,
+                value: inputValue, // Explicitly set the TextField's display value to our controlled inputValue
+                readOnly: true, // Make the input field read-only to disable typing
+            }}
+            placeholder={placeholder} // This placeholder will show only if inputValue is empty
             variant="outlined"
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -70,23 +106,24 @@ function CustomSelectMenu({
                   borderColor: '#1773EA',
                   borderWidth: '2px',
                 },
-                // --- Change: Apply specific disabled background color ---
                 '&.Mui-disabled': {
-                  backgroundColor: DISABLED_BACKGROUND_COLOR,
+                  backgroundColor: DISABLED_BACKGROUND_COLOR, // Disabled background
                 },
               },
               '& .MuiInputBase-input': {
                 padding: '4px 0 !important',
-                // Placeholder color for ENABLED state (or if not disabled)
                 '&::placeholder': {
                   color: placeholderColor,
                   opacity: 1,
                 },
-                // --- Change: Apply specific disabled placeholder color ---
                 '&.Mui-disabled::placeholder': {
-                  color: DISABLED_PLACEHOLDER_COLOR, // Specific color for disabled placeholder
-                  WebkitTextFillColor: `${DISABLED_PLACEHOLDER_COLOR} !important`, // Force for WebKit
+                  color: DISABLED_PLACEHOLDER_COLOR, // Disabled placeholder color
+                  WebkitTextFillColor: `${DISABLED_PLACEHOLDER_COLOR} !important`,
                   opacity: 1,
+                },
+                // Style for the read-only input text
+                '&:read-only': {
+                  cursor: 'pointer', // Indicate it's clickable like a select
                 },
               },
               '& .MuiAutocomplete-endAdornment': {
@@ -95,9 +132,9 @@ function CustomSelectMenu({
                   color: dropdownIconColor,
                 },
               },
-              // This rule styles the actual *typed text* in the disabled input
+              // This rule styles the actual *typed text* in the disabled input (less relevant now that it's readOnly)
               '& .MuiInputBase-input.Mui-disabled': {
-                WebkitTextFillColor: 'rgba(0, 0, 0, 0.6) !important', // Default faded text color for typed value
+                WebkitTextFillColor: 'rgba(0, 0, 0, 0.6) !important',
               }
             }}
           />
